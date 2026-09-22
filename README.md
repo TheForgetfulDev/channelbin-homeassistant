@@ -1,3 +1,5 @@
+![ChannelBin for Home Assistant](https://raw.githubusercontent.com/TheForgetfulDev/channelbin-homeassistant/main/images/channelbin-wordmark.png)
+
 # ChannelBin for Home Assistant
 
 A read-only Home Assistant integration for [ChannelBin](https://github.com/TheForgetfulDev/channelbin),
