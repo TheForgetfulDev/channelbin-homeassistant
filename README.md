@@ -12,7 +12,7 @@ recording; v1 is sensors only.
 
 ## What you get
 
-One device, ChannelBin, with nine entities.
+One device, ChannelBin, with ten entities.
 
 **Sensors**
 
@@ -20,11 +20,12 @@ One device, ChannelBin, with nine entities.
 |---|---|
 | Capturing | Recordings capturing right now |
 | Converting | Recordings being converted right now |
-| Next recording | When the next scheduled recording starts, with `name`, `channel` and `recording_id` attributes |
+| Next recording | When the next scheduled recording starts, with `name`, `channel` and `recording_id` attributes. Reads Unknown when nothing is scheduled, and the attributes stay listed with no value |
 | Disk free | Free space on the recording directory, shown in GB |
 | Disk used | Percent used on that same directory |
 | Unread alerts | Unread alert count, with the newest one's `severity`, `title` and `created_at` as attributes |
 | Accounts OK | Provider accounts in OK status, with `error_count` and `total` as attributes |
+| Accounts with errors | Provider accounts in ERROR status, with `ok_count` and `total` as attributes. An account that is syncing or has never synced is not counted |
 
 **Binary sensors**
 
@@ -94,7 +95,8 @@ Restart Home Assistant again after a pull.
 ## Add the integration
 
 **Settings > Devices & Services > Add Integration**, search for ChannelBin, and enter the host,
-port, scheme and the API key you generated.
+port, scheme and the API key you generated. The form repeats the setup steps above and has a
+help line under each field.
 
 The form checks the connection before it creates anything, so a wrong host, port or key fails
 right there with a message instead of silently at the first poll.

@@ -54,27 +54,35 @@ def _next_recording_value(data: dict[str, Any]) -> datetime | None:
     return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=dt_util.UTC)
 
 
+# The attrs functions always return the same keys, null when there is nothing to report:
+# Home Assistant draws an entity's Attributes panel only when at least one attribute exists,
+# so an empty dict hides it exactly when someone opens the entity to see why it reads Unknown.
 def _next_recording_attrs(data: dict[str, Any]) -> dict[str, Any]:
-    nxt = data['recording'].get('next_recording')
-    if not nxt:
-        return {}
-    return {'name': nxt['name'], 'channel': nxt['channel'], 'recording_id': nxt['id']}
+    nxt = data['recording'].get('next_recording') or {}
+    return {
+        'name': nxt.get('name'),
+        'channel': nxt.get('channel'),
+        'recording_id': nxt.get('id'),
+    }
 
 
 def _unread_alerts_attrs(data: dict[str, Any]) -> dict[str, Any]:
-    latest = data['alerts'].get('latest')
-    if not latest:
-        return {}
+    latest = data['alerts'].get('latest') or {}
     return {
-        'severity': latest['severity'],
-        'title': latest['title'],
-        'created_at': latest['created_at'],
+        'severity': latest.get('severity'),
+        'title': latest.get('title'),
+        'created_at': latest.get('created_at'),
     }
 
 
 def _accounts_ok_attrs(data: dict[str, Any]) -> dict[str, Any]:
     accounts = data['accounts']
     return {'error_count': accounts['error_count'], 'total': accounts['total']}
+
+
+def _accounts_error_attrs(data: dict[str, Any]) -> dict[str, Any]:
+    accounts = data['accounts']
+    return {'ok_count': accounts['ok_count'], 'total': accounts['total']}
 
 
 SENSOR_DESCRIPTIONS: tuple[ChannelBinSensorEntityDescription, ...] = (
@@ -133,6 +141,16 @@ SENSOR_DESCRIPTIONS: tuple[ChannelBinSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data['accounts']['ok_count'],
         attrs_fn=_accounts_ok_attrs,
+    ),
+    # ERROR only, never total - ok_count: SYNCING and UNSYNCED are not faults, and counting
+    # them would move this every time a sync runs and alarm on a never-synced account.
+    ChannelBinSensorEntityDescription(
+        key='accounts_error',
+        translation_key='accounts_error',
+        icon='mdi:account-alert',
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data['accounts']['error_count'],
+        attrs_fn=_accounts_error_attrs,
     ),
 )
 
