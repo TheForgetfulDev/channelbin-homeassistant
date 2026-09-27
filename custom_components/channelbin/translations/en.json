@@ -36,7 +36,28 @@
       "disk_used_percent": { "name": "Disk used" },
       "unread_alerts": { "name": "Unread alerts" },
       "accounts_ok": { "name": "Accounts OK" },
-      "accounts_error": { "name": "Accounts with errors" }
+      "accounts_error": { "name": "Accounts with errors" },
+      "account_status": {
+        "name": "Status",
+        "state": {
+          "ok": "OK",
+          "error": "Error",
+          "syncing": "Syncing",
+          "unsynced": "Never synced"
+        }
+      },
+      "account_last_sync": { "name": "Last sync" },
+      "account_next_sync": { "name": "Next sync" },
+      "account_last_error": { "name": "Last error" },
+      "account_channels": { "name": "Channels" },
+      "account_hidden_channels": { "name": "Hidden channels" },
+      "account_connections": {
+        "name": "Connections in use",
+        "state_attributes": {
+          "max_connections": { "name": "Max connections" }
+        }
+      },
+      "account_provider_expiry": { "name": "Provider expiry" }
     },
     "binary_sensor": {
       "recording": { "name": "Recording" },

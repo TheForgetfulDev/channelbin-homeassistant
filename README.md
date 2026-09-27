@@ -5,14 +5,17 @@
 A read-only Home Assistant integration for [ChannelBin](https://github.com/TheForgetfulDev/channelbin),
 a DVR that records IPTV streams and keeps going when they drop. It polls ChannelBin's status API
 every 45 seconds and gives you sensors for what is recording right now, how much disk is left,
-whether anything needs attention, and when the next scheduled recording starts.
+whether anything needs attention, when the next scheduled recording starts, and how each of your
+provider accounts is doing.
 
 It only reads. There are no services to call and nothing here can start, stop or change a
 recording; v1 is sensors only.
 
 ## What you get
 
-One device, ChannelBin, with ten entities.
+A ChannelBin device with ten entities, plus one device for each provider account.
+
+### The ChannelBin device
 
 **Sensors**
 
@@ -39,6 +42,32 @@ as `sensor.channelbin_capturing`, `sensor.channelbin_next_recording`,
 `binary_sensor.channelbin_recording` and so on. If one of those IDs is already taken, Home
 Assistant adds a numeric suffix, so check the device page for the exact list before you write
 automations against them.
+
+### One device per provider account
+
+Each provider account in ChannelBin gets its own device, listed under the ChannelBin device and
+named after the account.
+
+| Entity | Reports |
+|---|---|
+| Status | OK, Error, Syncing or Never synced. Automations compare against `ok`, `error`, `syncing` and `unsynced` |
+| Last sync | When the account last finished a sync |
+| Next sync | When the next sync will actually be attempted. Reads Unknown when syncing is turned off for the account |
+| Last error | The account's last sync error, cut to 255 characters. Reads Unknown when there isn't one. Filed under the device's diagnostics |
+| Channels | Channels the account has |
+| Hidden channels | Channels you have hidden on that account. Filed under diagnostics |
+| Connections in use | Connections ChannelBin has open to the provider right now (recordings, health checks and live previews), with the limit it enforces as the `max_connections` attribute |
+| Provider expiry | When the provider says the subscription runs out. Xtream accounts only, since an M3U playlist doesn't report one |
+
+The devices follow ChannelBin. A new account gets its device at the next poll. A deleted
+account's device is removed along with its entities. Renaming an account renames its device,
+and the entity IDs stay the same, so automations keep working. If a leftover device ever does
+stay behind, you can delete it from its device page. Home Assistant won't let you delete the
+ChannelBin device or a device for an account ChannelBin still has, because the next poll would
+just bring it back.
+
+Account devices need a ChannelBin release newer than 0.20.0. An older one doesn't report its
+accounts one by one, so you get the ChannelBin device only, exactly as before.
 
 ## Requirements
 
