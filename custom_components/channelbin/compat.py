@@ -11,7 +11,7 @@ from typing import Any
 
 # Raise this when the integration starts reading something from /api/ha/v1/status that an
 # older server does not send. Never above the app version in the same release.
-MIN_CHANNELBIN_VERSION = "0.12.0"
+MIN_CHANNELBIN_VERSION = "0.21.0"
 
 _VERSION_RE = re.compile(r"^\s*(\d+)\.(\d+)\.(\d+)")
 

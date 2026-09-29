@@ -64,6 +64,37 @@ def _next_recording_attrs(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _capturing(data: dict[str, Any]) -> list[dict[str, Any]]:
+    return data['recording'].get('capturing') or []
+
+
+def _current_recording_value(data: dict[str, Any]) -> str | None:
+    capturing = _capturing(data)
+    return truncated_state(capturing[0].get('name')) if capturing else None
+
+
+def _capturing_entry(rec: dict[str, Any]) -> dict[str, Any]:
+    # account/account_id arrive from ChannelBin 0.22.0 on and read null before it.
+    return {
+        'recording_id': rec.get('id'),
+        'channel': rec.get('channel'),
+        'account': rec.get('account'),
+        'account_id': rec.get('account_id'),
+        'started_at': utc_from_wire(rec.get('started_at')),
+        'stop_time': utc_from_wire(rec.get('stop_time')),
+    }
+
+
+# Two recordings at once must never read as one: the first is the state, the rest are listed
+# in also_recording, each carrying its own name since the state names only the first.
+def _current_recording_attrs(data: dict[str, Any]) -> dict[str, Any]:
+    first, *rest = _capturing(data) or [{}]
+    return {
+        **_capturing_entry(first),
+        'also_recording': [{'name': rec.get('name'), **_capturing_entry(rec)} for rec in rest],
+    }
+
+
 def _unread_alerts_attrs(data: dict[str, Any]) -> dict[str, Any]:
     latest = data['alerts'].get('latest') or {}
     return {
@@ -105,6 +136,15 @@ SENSOR_DESCRIPTIONS: tuple[ChannelBinSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TIMESTAMP,
         value_fn=_next_recording_value,
         attrs_fn=_next_recording_attrs,
+    ),
+    # No device_class, so nothing capturing reads None: that is a fact the server reported,
+    # not a value it is missing. binary_sensor.channelbin_recording stays the one to test on.
+    ChannelBinSensorEntityDescription(
+        key='current_recording',
+        translation_key='current_recording',
+        icon='mdi:record-rec',
+        value_fn=_current_recording_value,
+        attrs_fn=_current_recording_attrs,
     ),
     ChannelBinSensorEntityDescription(
         key='disk_free',

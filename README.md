@@ -24,6 +24,7 @@ A ChannelBin device with ten entities, plus one device for each provider account
 | Capturing | Recordings capturing right now |
 | Converting | Recordings being converted right now |
 | Next recording | When the next scheduled recording starts, with `name`, `channel` and `recording_id` attributes. Reads Unknown when nothing is scheduled, and the attributes stay listed with no value |
+| Current recording | The name of the recording capturing right now, with its `recording_id`, `channel`, `account`, `started_at` and `stop_time` as attributes. Any others capturing at the same time are listed in `also_recording`, each with the same fields plus its `name`. Reads None when nothing is capturing |
 | Disk free | Free space on the recording directory, shown in GB |
 | Disk used | Percent used on that same directory |
 | Unread alerts | Unread alert count, with the newest one's `severity`, `title` and `created_at` as attributes |
@@ -66,12 +67,10 @@ stay behind, you can delete it from its device page. Home Assistant won't let yo
 ChannelBin device or a device for an account ChannelBin still has, because the next poll would
 just bring it back.
 
-Account devices need a ChannelBin release newer than 0.20.0. An older one doesn't report its
-accounts one by one, so you get the ChannelBin device only, exactly as before.
-
 ## Requirements
 
-- **ChannelBin 0.12.0 or newer**, reachable from Home Assistant.
+- **ChannelBin 0.21.0 or newer**, reachable from Home Assistant. The Current recording
+  sensor's `account` attributes need ChannelBin 0.22.0 or newer and read empty before it.
 - **Home Assistant 2024.6.0 or newer.**
 
 ## Turn the API on in ChannelBin first
